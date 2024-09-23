@@ -27,6 +27,8 @@ def simulation(CSVFile):
     AGENTSIZE = 6
     AGENTSICKNESS = 3
     ZOOMFACTOR = 10
+    xSpace = 0.0
+    ySpace = 0.0
     DT = 0.3
     #WALLSFILE = "walls.csv"
     #AGENTCOLOR = [0,0,255]
@@ -60,6 +62,7 @@ def simulation(CSVFile):
     TPREMODE = 1        ### Instructinn: 1 -- DesiredV = 0  2 -- Motive Force =0: 
     PAUSE = False
     SHOWWALLDATA = True
+    SHOWEXITDATA = True
     debug = True
     
     # The file to record the some output data of the simulation
@@ -78,7 +81,7 @@ def simulation(CSVFile):
         agentFeatures, lowerIndex, upperIndex = getData(FileName, '&agent')
         Num_Agents=len(agentFeatures)-marginTitle
     if Num_Agents <= 0:
-        agentFeatures, lowerIndex, upperIndex = getData(FileName, '&Agent')
+        agentFeatures, lowerIndex, upperIndex = getData(FileName, '&Ped')
         Num_Agents=len(agentFeatures)-marginTitle
     
     f.write("Features of Agents\n"+str(agentFeatures)+"\n")
@@ -264,11 +267,11 @@ def simulation(CSVFile):
     f.write('Number of Walls:'+str(n_walls)+'\n')
     f.write('Number of Exits:'+str(n_exits)+'\n')
             
-    tableFeatures, LowerIndex, UpperIndex = getData(FileName, '&Ped2Exit')
+    tableFeatures, LowerIndex, UpperIndex = getData(FileName, '&Agent2Exit')
     if len(tableFeatures)<=0:
-        tableFeatures, LowerIndex, UpperIndex = getData(FileName, '&Agent2Exit')
+        tableFeatures, LowerIndex, UpperIndex = getData(FileName, '&agent2Exit')
     if len(tableFeatures)<=0:
-        tableFeatures, LowerIndex, UpperIndex = getData(FileName, '&agent2exit')
+        tableFeatures, LowerIndex, UpperIndex = getData(FileName, '&Ped2exit')
     
     if len(tableFeatures)>0:
         agent2exit = readFloatArray(tableFeatures,n_agents, n_exits)
@@ -438,6 +441,14 @@ def simulation(CSVFile):
                     SHOWVELOCITY = not SHOWVELOCITY
                 elif event.key == pygame.K_i:
                     SHOWINDEX = not SHOWINDEX
+                elif event.key == pygame.K_UP:
+                    ySpace=ySpace-10
+                elif event.key == pygame.K_DOWN:
+                    ySpace=ySpace+10
+                elif event.key == pygame.K_LEFT:
+                    xSpace=xSpace-10
+                elif event.key == pygame.K_RIGHT:
+                    xSpace=xSpace+10
     
         if MODETRAJ == False:
             screen.fill(BACKGROUNDCOLOR)
@@ -446,6 +457,10 @@ def simulation(CSVFile):
             t_now = pygame.time.get_ticks()/1000
             t_pause = t_now-tt
             continue
+
+        #############################
+        ######### Drawing Process ######
+        #xyShift = np.array([xSpace, ySpace])
     
         # Compute the agents one by one in loop
         for idai,ai in enumerate(agents):
@@ -514,7 +529,6 @@ def simulation(CSVFile):
                 pass
             
             ai.others=[]
-            
             #############################################
             # Compute interaction of agents
             # Group force and herding effect
@@ -825,12 +839,45 @@ def simulation(CSVFile):
         ####################
         
         for wall in walls:
-            startPos = np.array([wall.params[0],wall.params[1]])
-            endPos = np.array([wall.params[2],wall.params[3]])
-            startPx = startPos*ZOOMFACTOR
-            endPx = endPos*ZOOMFACTOR
-            pygame.draw.line(screen, red, startPx, endPx, LINESICKNESS)
+            #startPos = np.array([wall.params[0],wall.params[1]])
+            #endPos = np.array([wall.params[2],wall.params[3]])
+            #startPx = startPos*ZOOMFACTOR
+            #endPx = endPos*ZOOMFACTOR
+            #pygame.draw.line(screen, red, startPx, endPx, LINESICKNESS)
+
+    
             
+            if wall.mode=='line':
+                startPos = np.array([wall.params[0],wall.params[1]]) #+xyShift
+                endPos = np.array([wall.params[2],wall.params[3]]) #+xyShift
+                startPx = startPos*ZOOMFACTOR #+np.array([xSpace, ySpace])
+                endPx = endPos*ZOOMFACTOR #+np.array([xSpace, ySpace])
+                pygame.draw.line(screen, red, startPx+xyShift, endPx+xyShift, 2)
+                
+    
+                if SHOWWALLDATA:
+                    myfont=pygame.font.SysFont("arial",14)
+                    text_surface=myfont.render(str(startPos), True, purple, (255,255,255))
+                    screen.blit(text_surface, startPos*ZOOMFACTOR +xyShift)
+                    text_surface=myfont.render(str(endPos), True, purple, (255,255,255))
+                    screen.blit(text_surface, endPos*ZOOMFACTOR+xyShift)
+    
+            elif wall.mode=='rect':
+                x= ZOOMFACTOR*wall.params[0]
+                y= ZOOMFACTOR*wall.params[1]
+                w= ZOOMFACTOR*(wall.params[2] - wall.params[0])
+                h= ZOOMFACTOR*(wall.params[3] - wall.params[1])
+                
+                pygame.draw.rect(screen, red, [x, y, w, h], 2)
+                #pygame.draw.rect(screen, red, [x+xSpace, y+ySpace, w, h], 2)
+    
+                if SHOWWALLDATA:
+                    pass
+                    startPos = np.array([wall.params[0],wall.params[1]])
+                    endPos = np.array([wall.params[2],wall.params[3]])
+    
+                    myfont=pygame.font.SysFont("arial",10)
+                
             if isnan(wall.pointer1[0]) or isnan(wall.pointer1[1]):
                 pass
                 #input("Please check!")
@@ -865,16 +912,13 @@ def simulation(CSVFile):
         
         for exit in exits:
             
-            Pos = exit.pos #np.array([door[0], door[1]])
-            Px = [0, 0]
-            Px[0] = int(Pos[0]*ZOOMFACTOR)
-            Px[1] = int(Pos[1]*ZOOMFACTOR)
-            pygame.draw.circle(screen, purple, Px, LINESICKNESS)
+            #Pos = exit.pos #np.array([door[0], door[1]])
+            #Px = [0, 0]
+            #Px[0] = int(Pos[0]*ZOOMFACTOR)
+            #Px[1] = int(Pos[1]*ZOOMFACTOR)
+            #pygame.draw.circle(screen, purple, Px, LINESICKNESS)
             
-            '''
-            if exit.inComp == 0:
-                continue
-    
+            
             startPos = np.array([exit.params[0],exit.params[1]]) #+xyShift
             endPos = np.array([exit.params[2],exit.params[3]]) #+xyShift
     
@@ -890,19 +934,19 @@ def simulation(CSVFile):
                 
             pygame.draw.rect(screen, orange, [x+ xSpace, y+ ySpace, w, h], 2)
     
-            if SHOWDATA:
+            if SHOWEXITDATA:
     
                 myfont=pygame.font.SysFont("arial",10)
                 text_surface=myfont.render(str(startPos), True, blue, (255,255,255))
-                screen.blit(text_surface, startPos*ZOOMFACTOR + xyShift)
+                screen.blit(text_surface, startPos*ZOOMFACTOR) #+ xyShift)
     
                 #text_surface=myfont.render(str(endPos), True, blue, (255,255,255))
                 #screen.blit(text_surface, endPos*ZOOMFACTOR + xyShift)
     
                 myfont=pygame.font.SysFont("arial",13)
                 text_surface=myfont.render('Exit:'+str(exit.oid)+'/'+str(exit.name)+'/'+str(exit.arrow), True, red, white)
-                screen.blit(text_surface, exit.pos*ZOOMFACTOR + xyShift)
-            '''
+                screen.blit(text_surface, exit.pos*ZOOMFACTOR) #+ xyShift)
+            
     
         #   pygame.draw.circle(screen, AGENTCOLOR, (np.array(SCREENSIZE)/2).tolist(), AGENTSIZE, AGENTSICKNESS)
         
