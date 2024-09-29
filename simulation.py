@@ -101,9 +101,15 @@ def simulation(CSVFile):
         agent.tpre = float(agentFeature[ini+5])
         agent.p = float(agentFeature[ini+6])
         agent.pMode = agentFeature[ini+7]
-        agent.aType = agentFeature[ini+8]
-        agent.interactionRange = float(agentFeature[ini+9])
-        #agent.moving_tau = float(agentFeature[ini+11])
+        agent.pp2 = float(agentFeature[ini+8])
+        try:
+            agent.interactionRange = float(agentFeature[ini+9])
+            agent.aType = agentFeature[ini+10]
+            agent.inComp = agentFeature[ini+11]
+        except:
+            agent.interactionRange = float(1.0)
+            agent.aType = 'active'
+            agent.inComp = int(1)
         #agent.tpre_tau = float(agentFeature[ini+12])
         #agent.talk_tau = float(agentFeature[ini+13])
         #agent.talk_prob = float(agentFeature[ini+14])
@@ -140,7 +146,7 @@ def simulation(CSVFile):
         try:
             wall.mode = str(obstFeature[ini+5])
         except:
-            wall.mode = 'rect'
+            wall.mode = 'line'
         wall.oid = int(index)
         index += 1
         try:
@@ -149,6 +155,13 @@ def simulation(CSVFile):
         except:
             wall.pointer1 = np.array([float('NaN'), float('NaN')]) #np.nan #
             wall.pointer2 = np.array([float('NaN'), float('NaN')]) #np.nan #
+            
+        if wall.mode == 'rect':
+	        wall.params[0]= min(float(obstFeature[ini+0]),float(obstFeature[ini+2]))
+	        wall.params[1]= min(float(obstFeature[ini+1]),float(obstFeature[ini+3]))
+	        wall.params[2]= max(float(obstFeature[ini+0]),float(obstFeature[ini+2]))
+	        wall.params[3]= max(float(obstFeature[ini+1]),float(obstFeature[ini+3]))
+
         walls.append(wall)
         print(wall.arrow)
         print(wall.mode)
@@ -381,6 +394,69 @@ def simulation(CSVFile):
     
     comm = np.zeros((Num_Agents, Num_Agents))
     talk = np.zeros((Num_Agents, Num_Agents))
+    
+            
+    '''
+    #person.exit_prob, person.exit_known = readAgent2Exit(tableFeatures, len(self.agents), len(self.exits))
+    
+    if np.shape(self.agent2exit)!= (self.num_agents, self.num_exits): #or np.shape(agent2exit)[1]!=
+        print('\n!!! Error on input data: exits or agent2exit !!! \n')
+        f.write('\n!!! Error on input data: exits or agent2exit !!! \n')
+        #raw_input('Error on input data: exits or agent2exit!  Please check')
+        self.inputDataCorrect = False
+    else:
+        f.write('\n Input data: exits or agent2exit: \n'+str(self.agent2exit)+'\n')
+    
+    
+    for idai, ai in enumerate(self.agents):
+        for idexit, exit in enumerate(self.exits):
+            if ai.inComp == 0 or exit.inComp == 0:
+                continue
+            else:
+                if self.agent2exit[idai, idexit]>=0.0:
+                    person.exit_prob[idai, idexit] = self.agent2exit[idai, idexit]
+                    person.exit_known[idai, idexit]=int(1)
+                else:
+                    person.exit_prob[idai, idexit] = 0.0
+                    person.exit_known[idai, idexit]=int(0)
+                    
+                    
+    person.exit_prob = person.exit_prob * person.exit_known
+    ######################################
+    # Normalization of probabiligy measure
+    for idai, ai in enumerate(self.agents):
+        if ai.inComp == 0:
+            continue
+        sumTemp = sum(person.exit_prob[idai,:])
+        person.exit_prob[idai,:] = person.exit_prob[idai,:]/sumTemp
+
+    if self.DEBUG:
+        f.write("\n========================================\n")
+        f.write("Assign destinations of agents"+'\n')
+        f.write("=========================================\n")
+
+    # Initialize the exit selection algorithm for each individual
+    for idai, ai in enumerate(self.agents):
+        if ai.inComp == 0:
+            continue
+        temp = np.random.multinomial(1, person.exit_prob[idai, :], size=1)
+        print(person.exit_prob[idai, :])
+        print(temp)
+        #if len(self.exits)>0:
+        exit_index = np.argmax(temp)
+        ai.dest = self.exits[exit_index].pos
+        ai.exitInMind = self.exits[exit_index]   # This is the exit in one's original mind
+        ai.exitInMindIndex = exit_index
+        person.exit_selected[idai]=exit_index
+        #if self.solver==0:
+        #    ai.pathMap = self.exit2door[exit_index]
+        if self.exit2door is not None:
+            ai.pathMap = self.exit2door[exit_index]
+        print('ai:', idai, '--- exit:', exit_index)
+        if self.DEBUG:
+            f.write('ai:' + str(ai.ID) + '--- exit:' + str(exit_index) +'\n')
+    '''
+                    
     
     #Users may easily change some attributes of agents before the simulation
     #########################################
@@ -696,7 +772,7 @@ def simulation(CSVFile):
             #############################################
             # Calculate Motive Forces
             # Consider TPRE features
-            #############################################	
+            #############################################
             #tt = pygame.time.get_ticks()/1000-t_pause
             if (tt < ai.tpre and TPREMODE == 1):
                 ai.desiredV = ai.direction*0.0
@@ -852,15 +928,15 @@ def simulation(CSVFile):
                 endPos = np.array([wall.params[2],wall.params[3]]) #+xyShift
                 startPx = startPos*ZOOMFACTOR #+np.array([xSpace, ySpace])
                 endPx = endPos*ZOOMFACTOR #+np.array([xSpace, ySpace])
-                pygame.draw.line(screen, red, startPx+xyShift, endPx+xyShift, 2)
+                pygame.draw.line(screen, red, startPx, endPx, 2)
                 
     
                 if SHOWWALLDATA:
                     myfont=pygame.font.SysFont("arial",14)
                     text_surface=myfont.render(str(startPos), True, purple, (255,255,255))
-                    screen.blit(text_surface, startPos*ZOOMFACTOR +xyShift)
+                    screen.blit(text_surface, startPos*ZOOMFACTOR) #+xyShift)
                     text_surface=myfont.render(str(endPos), True, purple, (255,255,255))
-                    screen.blit(text_surface, endPos*ZOOMFACTOR+xyShift)
+                    screen.blit(text_surface, endPos*ZOOMFACTOR) #+xyShift)
     
             elif wall.mode=='rect':
                 x= ZOOMFACTOR*wall.params[0]
@@ -931,8 +1007,9 @@ def simulation(CSVFile):
             y= ZOOMFACTOR*exit.params[1]
             w= ZOOMFACTOR*(exit.params[2] - exit.params[0])
             h= ZOOMFACTOR*(exit.params[3] - exit.params[1])
-                
-            pygame.draw.rect(screen, orange, [x+ xSpace, y+ ySpace, w, h], 2)
+
+            pygame.draw.rect(screen, orange, [x, y, w, h], 2)
+            #pygame.draw.rect(screen, orange, [x+ xSpace, y+ ySpace, w, h], 2)
     
             if SHOWEXITDATA:
     
