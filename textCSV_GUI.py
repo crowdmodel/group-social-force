@@ -5,6 +5,8 @@
 from functools import partial
 import re, sys, os
 from simulation import *
+from agent_model import *
+from opinion_model import *
 
 # Version Check
 if sys.version_info[0] == 3: # Python 3
@@ -14,6 +16,7 @@ if sys.version_info[0] == 3: # Python 3
     from tkinter.ttk import Treeview
     from tkinter.ttk import Button
     import tkinter.filedialog as tkf
+    import tkinter.messagebox as msg
 else:
     # Python 2
     from Tkinter import *
@@ -21,6 +24,7 @@ else:
     from ttk import Treeview
     from ttk import Entry
     import tkFileDialog as tkf
+    import tkMessageBox as msg
     
 '''
 class FindPopup(Toplevel):
@@ -145,7 +149,7 @@ class Editor(object):
         self.edit_menu.add_command(label="Redo", command=self.edit_redo, accelerator="Ctrl+Y")
 
         self.py_menu = Menu(self.menubar, tearoff=0, bg="lightgrey", fg="black")
-        self.py_menu.add_command(label="runSimulation", command=self.pyrunABS, accelerator="F5")
+        self.py_menu.add_command(label="runABS(Agent-Based Simulation)", command=self.pyrunABS, accelerator="F5")
         self.py_menu.add_command(label="runOpinionModel", command=self.pyrunOP, accelerator="F6")
 
 
@@ -286,7 +290,19 @@ class Editor(object):
         '''
 
     def pyrunOP(self, event=None):
-        os.system("python main.py "+self.open_file)
+        #os.system("python main.py "+self.open_file)
+        #simulationOP(self.open_file)
+        T=None
+        if os.path.exists(self.open_file):
+            for line in open(self.open_file, "r"):
+                if re.match('&TotalTimeStep', line):
+                    temp =  line.split('=')
+                    T = int(temp[1].rstrip('\n').rstrip(',').strip()) 
+        if T is None:
+            T = 60
+            print("NO total time is specified in the input file and default value is used: T=60. ")
+            msg.showinfo('Info', 'NO total time is specified in the input file and default value is used: T=60.')
+        simulationOP(self.open_file, T)
     
     def file_new(self, event=None):
         file_name = tkf.asksaveasfilename()
