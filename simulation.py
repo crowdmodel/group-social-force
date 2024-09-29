@@ -284,10 +284,10 @@ def simulation(CSVFile):
     if len(tableFeatures)<=0:
         tableFeatures, LowerIndex, UpperIndex = getData(FileName, '&agent2Exit')
     if len(tableFeatures)<=0:
-        tableFeatures, LowerIndex, UpperIndex = getData(FileName, '&Ped2exit')
+        tableFeatures, LowerIndex, UpperIndex = getData(FileName, '&Ped2Exit')
     
     if len(tableFeatures)>0:
-        agent2exit = readFloatArray(tableFeatures,n_agents, n_exits)
+        agent2exit = readFloatArray(tableFeatures, n_agents, n_exits)
     
         if np.shape(agent2exit)!= (n_agents, n_exits): #or np.shape(agent2exit)[1]!=
             print('\n!!! Error on input data: exits or agent2exit !!! \n')
@@ -298,7 +298,7 @@ def simulation(CSVFile):
             f.write('\n Input data: exits or agent2exit: \n'+str(agent2exit)+'\n')
             print('\n!Agent2Exit!', agent2exit, '!!! \n')
             inputDataCorrect = True
-    
+
     tableFeatures, LowerIndex, UpperIndex = getData(FileName, '&GroupD')
     if len(tableFeatures)<=0:
         tableFeatures, LowerIndex, UpperIndex = getData(FileName, '&groupD')
@@ -395,69 +395,60 @@ def simulation(CSVFile):
     comm = np.zeros((Num_Agents, Num_Agents))
     talk = np.zeros((Num_Agents, Num_Agents))
     
-            
-    '''
-    #person.exit_prob, person.exit_known = readAgent2Exit(tableFeatures, len(self.agents), len(self.exits))
+    exit_prob = np.zeros((n_agents, n_exits))
+    exit_known = np.zeros((n_agents, n_exits))
+    #exit_prob, exit_known = readAgent2Exit(tableFeatures, len(self.agents), len(self.exits))
     
-    if np.shape(self.agent2exit)!= (self.num_agents, self.num_exits): #or np.shape(agent2exit)[1]!=
-        print('\n!!! Error on input data: exits or agent2exit !!! \n')
-        f.write('\n!!! Error on input data: exits or agent2exit !!! \n')
-        #raw_input('Error on input data: exits or agent2exit!  Please check')
-        self.inputDataCorrect = False
-    else:
-        f.write('\n Input data: exits or agent2exit: \n'+str(self.agent2exit)+'\n')
-    
-    
-    for idai, ai in enumerate(self.agents):
-        for idexit, exit in enumerate(self.exits):
+    for idai, ai in enumerate(agents):
+        for idexit, exit in enumerate(exits):
             if ai.inComp == 0 or exit.inComp == 0:
                 continue
             else:
-                if self.agent2exit[idai, idexit]>=0.0:
-                    person.exit_prob[idai, idexit] = self.agent2exit[idai, idexit]
-                    person.exit_known[idai, idexit]=int(1)
+                if agent2exit[idai, idexit]>=0.0:
+                    exit_prob[idai, idexit] = agent2exit[idai, idexit]
+                    exit_known[idai, idexit]=int(1)
                 else:
-                    person.exit_prob[idai, idexit] = 0.0
-                    person.exit_known[idai, idexit]=int(0)
+                    exit_prob[idai, idexit] = 0.0
+                    exit_known[idai, idexit]=int(0)
                     
-                    
-    person.exit_prob = person.exit_prob * person.exit_known
+    exit_prob = exit_prob * exit_known
+
     ######################################
     # Normalization of probabiligy measure
-    for idai, ai in enumerate(self.agents):
+    for idai, ai in enumerate(agents):
         if ai.inComp == 0:
             continue
-        sumTemp = sum(person.exit_prob[idai,:])
-        person.exit_prob[idai,:] = person.exit_prob[idai,:]/sumTemp
+        sumTemp = sum(exit_prob[idai,:])
+        exit_prob[idai,:] = exit_prob[idai,:]/sumTemp
 
-    if self.DEBUG:
+   
+    if debug:
         f.write("\n========================================\n")
         f.write("Assign destinations of agents"+'\n')
         f.write("=========================================\n")
 
     # Initialize the exit selection algorithm for each individual
-    for idai, ai in enumerate(self.agents):
+    for idai, ai in enumerate(agents):
         if ai.inComp == 0:
             continue
-        temp = np.random.multinomial(1, person.exit_prob[idai, :], size=1)
-        print(person.exit_prob[idai, :])
+        temp = np.random.multinomial(1, exit_prob[idai, :], size=1)
+        print(exit_prob[idai, :])
         print(temp)
         #if len(self.exits)>0:
         exit_index = np.argmax(temp)
-        ai.dest = self.exits[exit_index].pos
-        ai.exitInMind = self.exits[exit_index]   # This is the exit in one's original mind
+        ai.dest = exits[exit_index].pos
+        ai.exitInMind = exits[exit_index]   # This is the exit in one's original mind
         ai.exitInMindIndex = exit_index
-        person.exit_selected[idai]=exit_index
+        #exit_selected[idai]=exit_index
         #if self.solver==0:
         #    ai.pathMap = self.exit2door[exit_index]
-        if self.exit2door is not None:
-            ai.pathMap = self.exit2door[exit_index]
+        #if exit2door is not None:
+        #    ai.pathMap = self.exit2door[exit_index]
         print('ai:', idai, '--- exit:', exit_index)
-        if self.DEBUG:
-            f.write('ai:' + str(ai.ID) + '--- exit:' + str(exit_index) +'\n')
-    '''
-                    
+        if debug:
+            f.write('ai:' + str(idai) + '--- exit:' + str(exit_index) +'\n')
     
+                    
     #Users may easily change some attributes of agents before the simulation
     #########################################
     
@@ -895,14 +886,14 @@ def simulation(CSVFile):
             ###########################################
             ## Output time when agents reach the safety
             #if TIMECOUNT and (ai.pos[0] >= 35.0) and (ai.Goal == 0):
-            if TIMECOUNT and (np.linalg.norm(ai.pos-ai.dest)<=0.2) and (ai.Goal == 0):
-                print('test')
+            if TIMECOUNT and (np.linalg.norm(ai.pos-ai.dest)<=0.2): #and (ai.Goal == 0):
+                #print('test')
                 ai.inComp = 0
-                ai.Goal = 1
+                #ai.Goal = 1
                 ai.timeOut = pygame.time.get_ticks()
                 #ai.timeOut = clock.get_time()/1000.0
-                print('Time to Reach the Goal:', ai.timeOut)
-                f.write('Time to Reach the Goal:'+str(ai.timeOut))
+                print('Time to Reach the Destination:', ai.timeOut)
+                f.write('Time to Reach the Destination:'+str(ai.timeOut))
             
             ###########################################
             ## Remove agent when agent reaches the destination    

@@ -37,6 +37,12 @@ class Agent(object):
         self.direction = normalize(self.dest - self.pos)
         #self.direction = np.array([0.0, 0.0])
 
+        #self.actualV =  np.array([0.0, 0.0])#np.array([random.uniform(0,1.6), random.uniform(0,1.6)])
+        #self.actualSpeed = np.linalg.norm(self.actualV)  #np.array([0.0, 0.0])
+        #self.dest = None #np.array([60.0,10.0])
+        self.exitInMind = None
+        self.exitInMindIndex = None
+
         self.knowndoor = []
         self.others = []
         self.destmemory = []
@@ -52,9 +58,12 @@ class Agent(object):
         self.mass = 60 #random.uniform(40,90) #60.0
         self.radius = 0.35 #1.6 #0.3
 
-        self.interactionRange = 3.0 #Distance for communication (talking)
+        self.interactionRange = 3.0 #Distance for talking
+        self.talk_prob = 0.6        
+
         self.p = 0.2
         self.pMode = 'random' #{'random' 'fixed' 'increase' 'decrease'}
+        self.pp2 = 0.0
         
         self.bodyFactorA = 12.0
         self.slideFricFactorA = 240000
