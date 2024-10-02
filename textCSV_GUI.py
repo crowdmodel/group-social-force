@@ -305,18 +305,21 @@ class Editor(object):
         simulationOP(self.open_file, T)
     
     def file_new(self, event=None):
-        file_name = tkf.asksaveasfilename()
+        file_name = tkf.asksaveasfilename(filetypes=(("csv files", "*.csv"),("All files", "*.*")),\
+        initialdir=self.currentdir)
         if file_name:
             self.open_file = file_name
             self.main_text.delete(1.0, END)
             self.title(" - ".join([self.WINDOW_TITLE, self.open_file]))
 
     def file_open(self, event=None):
-        file_to_open = tkf.askopenfilename()
+        file_to_open = tkf.askopenfilename(filetypes=(("csv files", "*.csv"),("All files", "*.*")),\
+        initialdir=self.currentdir)
 
         if file_to_open:
             self.open_file = file_to_open
             self.main_text.delete(1.0, END)
+            self.currentdir = os.path.dirname(self.open_file)
 
             with open(file_to_open, "r") as file_contents:
                 file_lines = file_contents.readlines()
@@ -333,7 +336,8 @@ class Editor(object):
 
     def file_save(self, event=None):
         if not self.open_file:
-            new_file_name = tkf.asksaveasfilename()
+            new_file_name = tkf.asksaveasfilename(filetypes=(("csv files", "*.csv"),("All files", "*.*")),\
+        initialdir=self.currentdir)
             if new_file_name:
                 self.open_file = new_file_name
         if self.open_file:

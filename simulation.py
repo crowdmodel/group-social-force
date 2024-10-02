@@ -157,10 +157,10 @@ def simulation(CSVFile):
             wall.pointer2 = np.array([float('NaN'), float('NaN')]) #np.nan #
             
         if wall.mode == 'rect':
-	        wall.params[0]= min(float(obstFeature[ini+0]),float(obstFeature[ini+2]))
-	        wall.params[1]= min(float(obstFeature[ini+1]),float(obstFeature[ini+3]))
-	        wall.params[2]= max(float(obstFeature[ini+0]),float(obstFeature[ini+2]))
-	        wall.params[3]= max(float(obstFeature[ini+1]),float(obstFeature[ini+3]))
+            wall.params[0]= min(float(obstFeature[ini+0]),float(obstFeature[ini+2]))
+            wall.params[1]= min(float(obstFeature[ini+1]),float(obstFeature[ini+3]))
+            wall.params[2]= max(float(obstFeature[ini+0]),float(obstFeature[ini+2]))
+            wall.params[3]= max(float(obstFeature[ini+1]),float(obstFeature[ini+3]))
 
         walls.append(wall)
         print(wall.arrow)
@@ -174,51 +174,21 @@ def simulation(CSVFile):
     walls = []
     index = 0
     for obstFeature in obstFeatures[marginTitle:]:
-        wall = obst()
-        wall.name = str(obstFeature[ini])
         
         try:
             wall.mode = str(obstFeature[ini+6])
         except:
             wall.mode = 'rect'
-        
-        if wall.mode == 'line':
-            wall.params[0]= float(obstFeature[ini+1])
-            wall.params[1]= float(obstFeature[ini+2])
-            wall.params[2]= float(obstFeature[ini+3])
-            wall.params[3]= float(obstFeature[ini+4])
-        
-        elif wall.mode == 'rect':
-            wall.params[0]= min(float(obstFeature[ini+1]),float(obstFeature[ini+3]))
-            wall.params[1]= min(float(obstFeature[ini+2]),float(obstFeature[ini+4]))
-            wall.params[2]= max(float(obstFeature[ini+1]),float(obstFeature[ini+3]))
-            wall.params[3]= max(float(obstFeature[ini+2]),float(obstFeature[ini+4]))
-        
-        wall.oid = index
-        index = index+1
-        
-        try:
-            wall.arrow = int(obstFeature[ini+5])
-        except:
-            wall.arrow = int(0)
-        
-        try:
-            wall.mode = str(obstFeature[ini+6])
-        except:
-            wall.mode = 'rect'
-            
         try:
             wall.inComp = int(obstFeature[ini+7])
         except:
             wall.inComp = int(1)
-    
         try:
             wall.pointer1 = np.array([float(obstFeature[8]), float(obstFeature[9])])
             wall.pointer2 = np.array([float(obstFeature[10]), float(obstFeature[11])])
         except:
             wall.pointer1 = np.nan #np.array([float('NaN'), float('NaN')])
             wall.pointer2 = np.nan #np.array([float('NaN'), float('NaN')])
-        
         # Walls have no exit signs if arrow is 0
         #wall.exitSign = bool(wall.arrow)
         walls.append(wall)
@@ -911,8 +881,6 @@ def simulation(CSVFile):
             #startPx = startPos*ZOOMFACTOR
             #endPx = endPos*ZOOMFACTOR
             #pygame.draw.line(screen, red, startPx, endPx, LINESICKNESS)
-
-    
             
             if wall.mode=='line':
                 startPos = np.array([wall.params[0],wall.params[1]]) #+xyShift
