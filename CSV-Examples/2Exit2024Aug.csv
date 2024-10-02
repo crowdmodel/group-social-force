@@ -15,7 +15,7 @@ time:,2024-08-02_13_42_07
 --,9.5,0.0,10.0,10.0,0,rect,1
 
 
-&Ped,00/IniX,01/IniY,02/IniVx,03_IniVy,04_tau,05_tpre,06_p,07/pMode,08/pp2,09/arouseL,10/atype,11/inComp,09/talkRange,13/talk_tau,14/talk_prob,15/c2,radius,mass,maxSpeed,12/tpre_tau
+&Agent,00/IniX,01/IniY,02/IniVx,03_IniVy,04_tau,05_tpre,06_p,07/pMode,08/pp2,09/arouseL,10/atype,11/inComp,09/talkRange,13/talk_tau,14/talk_prob,15/c2,radius,mass,maxSpeed,12/tpre_tau
 Person0,6.33,2,0.6,0.2,0.3,3,0.6,fixed,0,30,active,1,0.7,2.6,0.7,0.3,0.35,47,1.2,0.7
 Person1,7.33,3,1.6,0.3,0.6,2,0.6,fixed,0,31,active,1,0.7,3.2,0.7,0.6,0.35,60,1.2,2.3
 Person2,8.33,2,0.3,0.3,3,10,0.3,fixed,0,57,active,1,1.6,2.3,0.7,0.3,0.3,43,1.2,2.2
@@ -26,7 +26,7 @@ Person6,2.33,6,0,0,1.7,16,0.63,fixed,0,36,follow,1,2.6,4.6,0.7,0.7,0.2,76,1.2,2.
 Person7,3.33,6,0.2,0.9,12,23,0.66,fixed,0,37,follow,1,1.7,3.6,0.7,0.2,0.35,60,1.2,0.3
 
 
-&Ped2Exit,Exit0,Exit1
+&Agent2Exit,Exit0,Exit1
 Person0,0.3,0.7
 Person1,0.7,0.3
 Person2,0.5,0.5

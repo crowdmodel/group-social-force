@@ -10,11 +10,12 @@ Line6,30,20,37,20,0,line,NaN,NaN,NaN,NaN,
 Line7,46,8,46,27,1,line,46,29,46,6,
 ,
 ,
-&Exit,X,Y,Direction
-Exit0,70,3,72,6,0,rect,1
-Exit1,70,30,72,33,0,rect,1
+&Exit,start X,start Y,end X,end Y,arrow,mode,
+Exit0,70,3,72,6,0,rect
+Exit1,70,30,72,33,0,rect
 ,
-
+,
+,
 &Agent,01/InitalX,02/InitialY,02/IniVx,03_IniVy,05/tau,06/tpre,07/p,08/pMode,09/pp2,10/talkRange,11/aType,12/inComp,13/tpre_tau,14/talk_tau,15/talk_prob,15/pp2,radius,mass,maxSpeed
 Person0,6.33,13,0.6,0.2,0.3,3,0,fixed,1,3,active,1,0.7,2.6,0.7,0.3,0.35,47,1.2
 Person1,7.33,15,1.6,0.3,0.6,16,0.6,random,1,2,active,1,2.3,3.2,0.7,0.6,0.35,60,1.2
@@ -24,7 +25,7 @@ Person4,10.33,16,1.6,0.6,1.3,32,0.4,random,1,3,active,1,0.6,3.3,0.7,0.7,0.25,60,
 Person5,11.33,18,0,0,1.6,33,0.36,random,1,2,follow,1,1.6,3.6,0.7,0.6,0.22,60,1.2
 Person6,22.33,12,0,0,1.7,36,0.63,random,1,6,follow,1,2.6,4.6,0.7,0.7,0.2,76,1.2
 Person7,23.33,16,0.2,0.9,12,47,0.66,random,0,3,search,1,0.3,3.6,0.7,0.2,0.35,60,1.2
-
+,
 ,
 &GroupA,Person0,Person1,Person2,Person3,Person4,Person5,Person6,Person7,
 Person0,0,122.3,0,0,0,0,0,0,
@@ -57,5 +58,6 @@ Person4,6,1,1,1,1,1.2,1,1,
 Person5,6,1.6,1,2.2,1,1,1,1,
 Person6,6,1,1,1,1,1,1,1,
 Person7,6,1,1,3.2,1,1,1,1,
+
 
 
