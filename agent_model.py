@@ -106,25 +106,6 @@ class Agent(object):
         print('X and Y Position:', self.pos)
         print('self.direction:', self.direction)
         
-
-
-    # def step(self):
-    #     # 初始速度和位置
-    #     v0 = self.actualV
-    #     r0 = self.pos
-    #     self.direction = normalize(self.dest - self.pos)
-    #     # 计算受力
-    #     adapt = self.adaptVel()
-    #     peopleInter = self.peopleInteraction()
-    #     wallInter = self.wallInteraction()
-    #     sumForce = adapt + peopleInter + wallInter
-    #     # 计算加速度
-    #     accl = sumForce/self.mass
-    #     # 计算速度
-    #     self.actualV = v0 + accl # consider dt = 1
-    #     # 计算位移
-    #     self.pos = r0 + v0 + 0.5*accl
-    #     print(accl,self.actualV,self.pos)
     
     def shoulders(self):
         if np.allclose(self.actualV, np.zeros(2)):
