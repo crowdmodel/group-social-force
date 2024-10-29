@@ -126,7 +126,7 @@ class Editor(object):
             self.currentdir = None
 
         self.AUTOCOMPLETE_WORDS = ["stress", "fixed", "random", "auto", "True", "False"]
-        self.FONT_SIZE = 10
+        self.FONT_SIZE = 16
         #self.AUTOCOMPLETE_WORDS = ["def", "import", "if", "else", "while", "for","try:", "except:", "print(", "True", "False"]
         self.WINDOW_TITLE = "CSV Text Editor"
 
