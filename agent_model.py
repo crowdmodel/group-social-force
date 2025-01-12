@@ -190,7 +190,7 @@ class Agent(object):
         first = Afactor*self.A_CF*np.exp((rij*Dfactor-dij)/(self.B_CF*Bfactor))*nij*(rij*Dfactor-dij) #*anisoF
         return first
 
-    def agentForce(self, other):
+    def socialForce(self, other):
         rij = self.radius + other.radius
         dij = np.linalg.norm(self.pos - other.pos)
         nij = (self.pos - other.pos)/dij

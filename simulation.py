@@ -56,7 +56,7 @@ def simulation(CSVFile):
     SHOWTIME = True         # Show a clock on the screen
     SHOWINTELINE = True     # Draw a line between interacting agents
     MODETRAJ = False        # Draw trajectory of agents' movement
-    COHESION = False        # Enable the cohesive social force
+    COHESION = True        # Enable the cohesive social force
     SELFREPULSION = True    # Enable self repulsion
     WALLBLOCKHERDING = True
     TPREMODE = 1        ### Instructinn: 1 -- DesiredV = 0  2 -- Motive Force =0: 
@@ -103,17 +103,21 @@ def simulation(CSVFile):
         agent.pMode = agentFeature[ini+7]
         agent.pp2 = float(agentFeature[ini+8])
         try:
-            agent.interactionRange = float(agentFeature[ini+9])
+            agent.tpreMode = int(agentFeature[ini+9])
             agent.aType = agentFeature[ini+10]
             agent.inComp = agentFeature[ini+11]
         except:
-            agent.interactionRange = float(1.0)
+            agent.tpreMode = int(1.0)
             agent.aType = 'active'
             agent.inComp = int(1)
-        #agent.tpre_tau = float(agentFeature[ini+12])
+        try:
+            agent.interactionRange = float(agentFeature[ini+12])
+        except:
+            agent.interactionRange = float(1.0)
         #agent.talk_tau = float(agentFeature[ini+13])
         #agent.talk_prob = float(agentFeature[ini+14])
         #agent.inComp = int(agentFeature[ini+15])
+        #agent.tpre_tau = float(agentFeature[ini+12])
         agents.append(agent)
         index += 1
     
@@ -626,7 +630,7 @@ def simulation(CSVFile):
                 #############################################
                 # Traditional Social Force and Physical Force
                 if no_wall_ij: #and see_i2j:
-                    peopleInter += ai.agentForce(aj)*anisoF
+                    peopleInter += ai.socialForce(aj)*anisoF
              
                          
                 talk[idai, idaj] = 0
@@ -1085,4 +1089,4 @@ def simulation(CSVFile):
     f.close()
 
 if __name__ == "__main__":
-    simulation("Agent2024June.csv")
+    simulation("./CSV-Examples/2Exit2024Aug.csv")
