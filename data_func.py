@@ -229,6 +229,187 @@ def arr1D_2D(data, debug=True):
     return matrix
 
 
+
+
+def readGroupCABD(tableFeatures, NRow, NColomn, debug=True):
+
+    # NRow and NColomn are the size of data to be extracted from tableFeatures
+    matrixC = np.zeros((NRow, NColomn))
+    matrixA = np.zeros((NRow, NColomn))
+    matrixB = np.zeros((NRow, NColomn))
+    matrixD = np.zeros((NRow, NColomn))
+    
+    for i in range(NRow):
+        for j in range(NColomn):
+            
+            if tableFeatures[i+1][j+1] and tableFeatures[i+1][j+1] != '0':
+                try:
+                    #temp=re.split(r'[\s\/]+', tableFeatures[i+1][j+1])
+                    temp=re.split(r'\s*[;\|\s]\s*', tableFeatures[i+1][j+1])
+                    matrixC[i,j] = float(temp[0])
+                    matrixA[i,j] = float(temp[1])
+                    matrixB[i,j] = float(temp[2])
+                    matrixD[i,j] = float(temp[3])
+                except:
+                    print("Error in reading group data!")
+                    input("Please check!")
+                    matrixC[i,j] = 0.0
+                    matrixA[i,j] = 0.0
+                    matrixB[i,j] = 0.0
+                    matrixD[i,j] = 0.0
+            else:
+                matrixC[i,j] = 0.0
+                matrixA[i,j] = 0.0
+                matrixB[i,j] = 0.0
+                matrixD[i,j] = 0.0
+                
+    if debug:
+        print(tableFeatures, '\n')
+        print('Data in Table:', '\n', matrixC, matrixA, matrixB, matrixD)
+    return matrixC, matrixA, matrixB, matrixD
+
+
+def readGroupABD(tableFeatures, NRow, NColomn, debug=True):
+
+    # NRow and NColomn are the size of data to be extracted from tableFeatures
+    matrixA = np.zeros((NRow, NColomn))
+    matrixB = np.zeros((NRow, NColomn))
+    matrixD = np.zeros((NRow, NColomn))
+    
+    for i in range(NRow):
+        for j in range(NColomn):
+            
+            if tableFeatures[i+1][j+1] and tableFeatures[i+1][j+1] != '0':
+                try:
+                    #temp=re.split(r'[\s\/]+', tableFeatures[i+1][j+1])
+                    temp=re.split(r'\s*[;\|\s]\s*', tableFeatures[i+1][j+1])
+                    matrixA[i,j] = float(temp[0])
+                    matrixB[i,j] = float(temp[1])
+                    matrixD[i,j] = float(temp[2])
+                except:
+                    print("Error in reading group data!")
+                    input("Please check!")
+                    matrixA[i,j] = 0.0
+                    matrixB[i,j] = 0.0
+                    matrixD[i,j] = 0.0
+            else:
+                matrixA[i,j] = 0.0
+                matrixB[i,j] = 0.0
+                matrixD[i,j] = 0.0
+                
+    if debug:
+        print(tableFeatures, '\n')
+        print('Data in Table:', '\n', matrixA, matrixB, matrixD)
+    return matrixA, matrixB, matrixD
+    
+
+def readGroupC(tableFeatures, NRow, NColomn, debug=True):
+    # NRow and NColomn are the size of data to be extracted from tableFeatures
+    matrixC = np.zeros((NRow, NColomn))
+    if tableFeatures[i+1][j+1] and tableFeatures[i+1][j+1] != '0':
+        try:    
+            matrixC[i,j] = float(tableFeatures[i+1][j+1])        
+        except:
+            print("Error in reading group data!")
+            input("Please check!")
+            matrixC[i,j] = 0.0
+    else:
+        matrixC[i,j] = 0.0
+                
+    if debug:
+        print(tableFeatures, '\n')
+        print('Data in Table:', '\n', matrixC)
+    return matrixC
+
+def readSocialArrayCSV(FileName, debug=True, marginTitle=1):
+
+    #dataFeatures = readCSV_base(FileName)
+    #[Num_Data, Num_Features] = np.shape(dataFeatures)   
+
+    agentFeatures, lowerIndex, upperIndex = getData(FileName, '&Ped')
+    Num_Agents=len(agentFeatures)-marginTitle
+    if Num_Agents <= 0:
+        agentFeatures, lowerIndex, upperIndex = getData(FileName, '&agent')
+        Num_Agents=len(agentFeatures)-marginTitle
+    if Num_Agents <= 0:
+        agentFeatures, lowerIndex, upperIndex = getData(FileName, '&Agent')
+        Num_Agents=len(agentFeatures)-marginTitle
+
+    if debug: 
+        print ('Number of Agents:', Num_Agents, '\n')
+        print ("Features of Agents\n", agentFeatures, "\n")
+
+    agent2exitFeatures, lowerIndex, upperIndex = getData(FileName, '&agent2exit')
+    Num_Agent2Exit=len(agent2exitFeatures)-marginTitle
+    if Num_Agent2Exit <= 0:
+        agent2exitFeatures, lowerIndex, upperIndex = getData(FileName, '&ped2exit')
+        Num_Agent2Exit=len(agent2exitFeatures)-marginTitle
+    if Num_Agent2Exit <= 0:
+        agent2exitFeatures, lowerIndex, upperIndex = getData(FileName, '&Ped2Exit')
+        Num_Agent2Exit=len(agent2exitFeatures)-marginTitle
+    if debug:
+        print ('Number of Agent2Exit:', Num_Agent2Exit, '\n')
+        print ('Features of Agent2Exit\n', agent2exitFeatures, "\n")
+
+    agentgroupFeatures, lowerIndex, upperIndex = getData(FileName, '&groupC')
+    Num_AgentGroup=len(agentgroupFeatures)-marginTitle
+    if Num_AgentGroup <= 0:
+        agentgroupFeatures, lowerIndex, upperIndex = getData(FileName, '&groupCABD')
+        Num_AgentGroup=len(agent2exitFeatures)-marginTitle
+    if Num_AgentGroup <= 0:
+        agentgroupFeatures, lowerIndex, upperIndex = getData(FileName, '&groupABD')
+        Num_AgentGroup=len(agent2exitFeatures)-marginTitle
+    if debug:
+        print ('Number of AgentGroup:', Num_AgentGroup, '\n')
+        print ('Features of AgentGroup\n', agentgroupFeatures, "\n")
+
+    '''
+    obstFeatures, lowerIndex, upperIndex = getData(FileName, '&Wall')
+    Num_Obsts=len(obstFeatures)-marginTitle
+    if Num_Obsts <= 0:
+        obstFeatures, lowerIndex, upperIndex = getData(FileName, '&wall')
+        Num_Obsts=len(obstFeatures)-marginTitle
+
+    if debug:
+        print ('Number of Walls:', Num_Obsts, '\n')
+        print ("Features of Walls\n", obstFeatures, "\n")
+
+    exitFeatures, lowerIndex, upperIndex = getData(FileName, '&Exit')
+    Num_Exits=len(exitFeatures)-marginTitle
+    if Num_Exits <= 0:
+        exitFeatures, lowerIndex, upperIndex = getData(FileName, '&exit')
+        Num_Exits=len(exitFeatures)-marginTitle
+        
+    if debug: 
+        print ('Number of Exits:', Num_Exits, '\n')
+        print ("Features of Exits\n", exitFeatures, "\n")
+
+    doorFeatures, lowerIndex, upperIndex = getData(FileName, '&Door')
+    Num_Doors=len(doorFeatures)-marginTitle
+    if Num_Doors <= 0:
+        doorFeatures, lowerIndex, upperIndex = getData(FileName, '&door')
+        Num_Doors=len(doorFeatures)-marginTitle
+        
+    if debug:
+        print ('Number of Doors:', Num_Doors, '\n')
+        print ('Features of Doors\n', doorFeatures, "\n")
+        
+    exit2doorFeatures, lowerIndex, upperIndex = getData(FileName, '&Exit2Door')
+    Num_Exit2Door=len(exit2doorFeatures)-marginTitle
+    if Num_Exit2Door <= 0:
+        exit2doorFeatures, lowerIndex, upperIndex = getData(FileName, '&exit2door')
+        Num_Exit2Door=len(doorFeatures)-marginTitle
+
+    if debug:
+        print ('Number of Exit2Door:', Num_Exit2Door, '\n')
+        print ('Features of Exit2Door\n', exit2doorFeatures, "\n")
+    '''
+
+    return agentFeatures, agent2exitFeatures, agentgroupFeatures #, obstFeatures, exitFeatures, doorFeatures, exit2doorFeatures
+
+
+
+
 def readFloatArray(tableFeatures, NRow, NColomn, debug=True):
 
     #tableFeatures, LowerIndex, UpperIndex = getData("newDataForm.csv", '&Ped2Exit')
