@@ -301,25 +301,27 @@ def readGroupABD(tableFeatures, NRow, NColomn, debug=True):
         print(tableFeatures, '\n')
         print('Data in Table:', '\n', matrixA, matrixB, matrixD)
     return matrixA, matrixB, matrixD
-    
 
+    
 def readGroupC(tableFeatures, NRow, NColomn, debug=True):
     # NRow and NColomn are the size of data to be extracted from tableFeatures
-    matrixC = np.zeros((NRow, NColomn))
-    if tableFeatures[i+1][j+1] and tableFeatures[i+1][j+1] != '0':
-        try:    
-            matrixC[i,j] = float(tableFeatures[i+1][j+1])        
-        except:
-            print("Error in reading group data!")
-            input("Please check!")
-            matrixC[i,j] = 0.0
-    else:
-        matrixC[i,j] = 0.0
-                
+    matrixS = np.zeros((NRow, NColomn))
+    for i in range(NRow):
+        for j in range(NColomn):
+            if tableFeatures[i+1][j+1] and tableFeatures[i+1][j+1] != '0':
+                try:    
+                    matrixS[i,j] = float(tableFeatures[i+1][j+1])        
+                except:
+                    print("Error in reading group data!")
+                    input("Please check!")
+                    matrixS[i,j] = 0.0
+            else:
+                matrixS[i,j] = 0.0
+                        
     if debug:
         print(tableFeatures, '\n')
-        print('Data in Table:', '\n', matrixC)
-    return matrixC
+        print('Data in Table:', '\n', matrixS)
+    return matrixS
 
 def readSocialArrayCSV(FileName, debug=True, marginTitle=1):
 
