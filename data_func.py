@@ -45,6 +45,94 @@ except:
         input("please check!")
 
 
+def findKey(FileName, Title1=None, Title2=None, Title3=None):
+    
+    FindTitle1=int(0)
+    FindTitle2=int(0)
+    FindTitle3=int(0)
+    result=None
+    
+    for line in open(FileName, "r"):
+        if Title1:
+            if re.match(Title1, line):
+                FindTitle1=int(1)
+                temp =  line.split('=')
+                result = str(temp[1].rstrip('\n').rstrip(',').strip())
+                #return result
+        if Title2:
+            if re.match(Title2, line):
+                FindTitle2=int(1)
+                temp =  line.split('=')
+                result = str(temp[1].rstrip('\n').rstrip(',').strip())
+                #return result
+        if Title3:
+            if re.match(Title3, line):
+                FindTitle3=int(1)
+                temp =  line.split('=')
+                result = str(temp[1].rstrip('\n').rstrip(',').strip())
+                #return result
+    if FindTitle1+FindTitle2+FindTitle3>1.0:
+        print("Warning: Multiple input lines for Title of "+str(Title1)+str(Title2)+str(Title3)+"\n")
+        print("Use the last key value found for the title!")
+        if sys.version_info[0] == 2: 
+            raw_input("Please check!")
+        else:
+            input("please check!")
+    return result
+
+
+def wp2groupC(WPMatrix):
+    
+    print('\n')
+    print('#=======================#')
+    dataArray = np.array(WPMatrix)
+    print (dataArray)
+    print('np.shape(dataArray)', np.shape(dataArray))
+    print('\n')
+
+    (I, J) = np.shape(dataArray)
+    if I != J:
+        print("Wrong input data in WPMatrix because I!=J (Not a square matrix). \n")
+        print("Problem found in input matrix: Number of rows is not equal to number of columns.")
+        if sys.version_info[0] == 2: 
+            raw_input("Please check!")
+        else:
+            input("please check!")
+        return "Wrong input data!"
+        
+    groupC = np.zeros((I, J)) #groupC = np.zeros((I, I))
+    ppp = np.zeros((I,))
+    
+    for i in range(I):
+        
+        ppp[i] = np.sum(np.fabs(dataArray[i,:]))-np.fabs(dataArray[i,i])
+        if ppp[i]<0 or ppp[i]>1.0:
+            print("Wrong input data in WPMatrix because p is not in range of [0,1] \n")
+            print("Problem found in row "+str(i)+" of input matrix!")
+            if sys.version_info[0] == 2: 
+                raw_input("Please check!")
+            else:
+                input("please check!")
+            return "Wrong input data!"
+            
+        for j in range(J):
+            if ppp[i]==0:
+                # Isolate Agent!
+                print("Isolate Agent!")
+                if i==j:
+                    groupC[i,i]=1.0
+                else:
+                    groupC[i,j]=0.0
+            else:
+                # Normal Agent!
+                if i==j:
+                    groupC[i,i]=0.0
+                else:
+                    groupC[i,j]=dataArray[i,j]/ppp[i]
+                    
+    return groupC, ppp
+
+
 def readDoorProb(FileName, doorIndex, showdata=True):
     findMESH=False
     doorProb=[]
