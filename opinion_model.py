@@ -15,7 +15,7 @@
 #%%% Simulation
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+import re
 import numpy as np
 import random
 #import matplotlib.pyplot as plt
@@ -42,20 +42,41 @@ except:
     else:
         input("please check!")
 
+try:
+    import scipy.stats
+except:
+    print("Warning: scipy.stat cannot be imported.  Unable to generate random variables!")
+    if sys.version_info[0] == 2: 
+        raw_input("Please check!")
+    else:
+        input("please check!")
+
 logging.basicConfig(filename='log_examp.log',level=logging.DEBUG)
 logging.debug('This message should go to the log file')
 logging.info('So should this')
 logging.warning('And this, too')
 
 
-def simulationOP(filename, T, DEBUG=True):
+def simulationOP(filename, T, DEBUG=True, antago_model="basic1", model="FJ"):
 
         # Time Horizon: T
 
         # Read in csv file
         #fileName
-
+        
+        #anta_model="basic" 
+        #anta_model=str()
+        #model="random" 
+        #model="FJ"
+        
+        if findKey(filename, '&antago_model', '&Antago_Model', '&Antago_model'):
+            antago_model = str(findKey(filename, '&antago_model', '&Antago_Model', '&Antago_model'))
+        if findKey(filename, '&model', '&Model', '&MODEL'):
+            model = str(findKey(filename, '&model', '&Model', '&MODEL'))
+        
         print('\nBuilding Models\n')
+        print('antago_model:', antago_model)
+        print('model:', model)
 
         try: 
             dataIS, isStart, isEnd = getData(filename, "&inti")
@@ -112,7 +133,11 @@ def simulationOP(filename, T, DEBUG=True):
                         CArray[idai,:] = np.sign(CArray[idai,:])*np.fabs(CArray[idai,:])/np.sum(np.fabs(CArray[idai,:]))
                         for idaj in range(NumAgents):
                             if idaj == idai:
-                                PFactor[idai,idaj] = 1-matrixP[idai,0]*np.sum(CArray[idai,:])
+                                #if re.match("basic", antago_model):
+                                if antago_model=="basic": 
+                                    PFactor[idai,idaj] = 1-matrixP[idai,0]
+                                else:
+                                    PFactor[idai,idaj] = 1-matrixP[idai,0]*np.sum(CArray[idai,:])
                             else:
                                 PFactor[idai,idaj] = CArray[idai,idaj]*matrixP[idai,0]
                     else:
@@ -160,7 +185,11 @@ def simulationOP(filename, T, DEBUG=True):
                     if len(tableFeatures)>0:
                         CFactor_Init = readGroupC(tableFeatures, NumAgents, NumAgents)
                     else:
-                        CFactor_Init = np.zeros((NumAgents, NumAgents))
+                        tableFeatures, LowerIndex, UpperIndex = getData(filename, '&groupS')
+                        if len(tableFeatures)>0:
+                            CFactor_Init = readGroupC(tableFeatures, NumAgents, NumAgents)
+                        else:
+                            CFactor_Init = np.zeros((NumAgents, NumAgents))
 
             CArray = CFactor_Init
             PFactor = np.zeros((NumAgents, NumAgents))
@@ -173,7 +202,11 @@ def simulationOP(filename, T, DEBUG=True):
                     CArray[idai,:] = np.sign(CArray[idai,:])*np.fabs(CArray[idai,:])/np.sum(np.fabs(CArray[idai,:]))
                     for idaj in range(NumAgents):
                         if idaj == idai:
-                            PFactor[idai,idaj] = 1-matrixP[idai,0]*np.sum(CArray[idai,:])
+                            #if re.match("basic", antago_model):
+                            if antago_model=="basic":    
+                                PFactor[idai,idaj] = 1-matrixP[idai,0]
+                            else:
+                                PFactor[idai,idaj] = 1-matrixP[idai,0]*np.sum(CArray[idai,:])
                         else:
                             PFactor[idai,idaj] = CArray[idai,idaj]*matrixP[idai,0]
                 else:
@@ -270,14 +303,22 @@ def simulationOP(filename, T, DEBUG=True):
                 for j in range(0, NumAgents):                    
                     #if np.fabs(OPIN[i,t])>1E-2:
                     sum = sum + matrixWP[i,j]*OPIN[j,t]
-                OPIN[i,t+1]=sum*matrixL[i,0]+(1-matrixL[i,0])*OPIN[i,0]
+                    
+                if model=="FJ":
+                    OPIN[i,t+1]=sum*matrixL[i,0]+(1-matrixL[i,0])*OPIN[i,0]
+                elif model=="random":
+                    rand_thoughts = random.random()-0.5 #scipy.stats.uniform.rvs(size=1)-0.5
+                    OPIN[i,t+1]=sum+matrixL[i,0]*rand_thoughts
+                else:
+                    OPIN[i,t+1]=sum
+                    
 
             #print "Movement integrated from the above matrix", Mov[:,t]
             print("OPIN[t]:", OPIN[:,t])
             print("OPIN[t+1]:", OPIN[:,t+1])
             #print("number of evacuees", np.sum(OPIN[:,t]))
 
-            # Record opinions of agents in output data files: 
+            # Record opinions of agents in output data files:
             f.write("OPIN[t]:"+str(OPIN[:,t])+"\n")
             f.write("OPIN[t+1]:"+str(OPIN[:,t+1])+"\n")
 
@@ -290,8 +331,8 @@ def simulationOP(filename, T, DEBUG=True):
         np.save("dataResult.npy", OPIN)
         #plt.figure('data')
         for i in range(NumAgents):
-            plt.plot(OPIN[i,:], linewidth=2.0, label=str(i))
-            plt.text(0,OPIN[i,0], str(i), fontsize=18)
+            plt.plot(OPIN[i,:], linewidth=2.0, label='A'+str(i+1))
+            plt.text(0,OPIN[i,0], 'A'+str(i+1), fontsize=18)
             
         (xDim, tDim)=np.shape(OPIN)
         timeline = np.linspace(0, tDim)
@@ -300,7 +341,7 @@ def simulationOP(filename, T, DEBUG=True):
         plt.xlabel("t" ) #, fontsize = 15)
         plt.ylabel("tpre") #, fontsize = 15)
         plt.grid()
-        plt.legend(loc='best')
+        plt.legend(loc='right bottom')
         #plt.ylim(0,7)
         plt.show()
         
