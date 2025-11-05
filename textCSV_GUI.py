@@ -78,7 +78,7 @@ class Editor(object):
         self.py_menu = Menu(self.menubar, tearoff=0, bg="lightgrey", fg="black")
         self.py_menu.add_command(label="runABS(Agent-Based Simulation)", command=self.pyrunABS, accelerator="F5")
         self.py_menu.add_command(label="runOpinionModel", command=self.pyrunOP, accelerator="F6")
-
+        self.py_menu.add_command(label="Data2GroupC", command=self.transData, accelerator="F6")
 
         self.menubar.add_cascade(label="File", menu=self.file_menu)
         self.menubar.add_cascade(label="Edit", menu=self.edit_menu)
@@ -229,7 +229,107 @@ class Editor(object):
             print("NO total time is specified in the input file and default value is used: T=60. ")
             msg.showinfo('Info', 'NO total time is specified in the input file and default value is used: T=60.')
         simulationOP(self.open_file, T)
-    
+
+
+    def transData(self, event=None):
+        if self.open_file is None:
+            msg.showinfo('Info', 'Please open an input csv file first!')
+            return
+        else:
+            dataIS, isStart, isEnd = getData(self.open_file, "&inti")
+            dataWP, wpStart, wpEnd = getData(self.open_file, "&prob")
+  
+            print(dataIS)
+            print(dataWP)
+
+            NumAgents=len(dataIS)-1
+
+            matrixIS=readFloatArray(dataIS, NumAgents, 1)
+            if matrixIS.shape[0]!=NumAgents:
+                print('\nError with matrixIS\n')
+            if len(dataWP)>1:
+                matrixWP=readFloatArray(dataWP, NumAgents, NumAgents)
+                # %%%% Input parameter check
+                if np.shape(matrixWP)!= (NumAgents, NumAgents):
+                    print('\nError on input parameter\n')
+            dataC, dataP = wp2groupC(matrixWP)
+            print(dataC, dataP)
+
+            self.main_text.insert(END, '\n&groupC\n')
+            self.main_text.insert(END, str(dataC)+'\n')
+            self.main_text.insert(END, '\n&p\n')
+            self.main_text.insert(END, str(dataP)+'\n')
+            
+
+    def drawGraph(self, event=None):
+        if self.open_file is None:
+            msg.showinfo('Info', 'Please open an input csv file first!')
+            return
+        else:
+            dataIS, isStart, isEnd = getData(self.open_file, "&inti")
+            dataWP, wpStart, wpEnd = getData(self.open_file, "&prob")
+            dataP, pStart, pEnd = getData(self.open_file, "&p")
+            dataC, cStart, cEnd = getData(self.open_file, "&groupC")
+
+            print(dataIS)
+            print(dataWP)
+            print(dataP)
+            print(dataC)
+
+            NumAgents=len(dataIS)-1
+
+            matrixIS=readFloatArray(dataIS, NumAgents, 1)
+            if matrixIS.shape[0]!=NumAgents:
+                print('\nError with matrixIS\n')
+
+            if len(dataWP)>1:
+                matrixWP=readFloatArray(dataWP, NumAgents, NumAgents)
+                # %%%% Input parameter check
+                if np.shape(matrixWP)!= (NumAgents, NumAgents):
+                    print('\nError on input parameter\n')
+
+            if len(dataP)>1 and len(dataC)>1 and len(dataP)==len(dataC):
+
+                matrixP=readFloatArray(dataP, NumAgents, 1)
+                if matrixP.shape[0]!=NumAgents:
+                    print('\nError with matrixP\n')
+
+                CArray=readFloatArray(dataC, NumAgents, NumAgents)
+                if CArray.shape!=(NumAgents, NumAgents):
+                    print('\nError with CArray\n')
+
+                print("matrixP:\n", np.shape(matrixP), "\n", matrixP, "\n")
+                print("CArray:\n", np.shape(CArray), "\n", CArray, "\n")
+
+                PFactor = np.zeros((NumAgents, NumAgents))
+                print("CArray:\n", np.shape(CArray), "\n", CArray, "\n")
+                for idai in range(NumAgents):
+                    #if ai.inComp == 0:
+                    #    continue
+                    if np.sum(np.fabs(CArray[idai,:]))>0:
+                        CArray[idai,:] = np.sign(CArray[idai,:])*np.fabs(CArray[idai,:])/np.sum(np.fabs(CArray[idai,:]))
+                        for idaj in range(NumAgents):
+                            if idaj == idai:
+                                PFactor[idai,idaj] = 1-matrixP[idai,0]*np.sum(CArray[idai,:])
+                            else:
+                                PFactor[idai,idaj] = CArray[idai,idaj]*matrixP[idai,0]
+                    else:
+                        for idaj in range(NumAgents):
+                            if idaj == idai:
+                                PFactor[idai,idaj] = 1.0
+                            else:
+                                PFactor[idai,idaj] = 0.0
+                print("PFactor:\n", np.shape(PFactor), "\n", PFactor, "\n")
+                matrixWP = PFactor
+
+            print("matrixWP:\n", np.shape(matrixWP), "\n", matrixWP, "\n")
+            print("matrixIS:\n", np.shape(matrixIS), "\n", matrixIS, "\n")
+
+            adj_matrix  = matrixWP
+            G = networkx.from_numpy_matrix(adj_matrix)
+            networkx.draw(G, with_labels =True)
+            plt.show()
+
     def file_new(self, event=None):
         file_name = tkf.asksaveasfilename(filetypes=(("csv files", "*.csv"),("All files", "*.*")),\
         initialdir=self.currentdir)
@@ -295,10 +395,8 @@ class Editor(object):
                 with open(self.open_file, "w") as open_file:
                     open_file.write(new_contents2)
                 msg.showinfo('Info', 'File saved successfully')
-                self.window.title(" - ".join([self.WINDOW_TITLE, self.open_file]))
             except:
                 msg.showinfo('Info', 'Errors in saving files')
-
                 
 
     def select_all(self, event=None):
